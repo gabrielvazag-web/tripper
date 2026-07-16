@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { Download, Upload } from 'lucide-react'
+import { Download, LogOut, Share2, Upload } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
+import { useAuth } from '../../store/AuthContext'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
 import { Card } from '../../components/ui/Card'
 import { TextField } from '../../components/ui/Field'
@@ -8,6 +9,7 @@ import { Button } from '../../components/ui/Button'
 import { useTheme } from '../../lib/useTheme'
 import type { ThemePref } from '../../lib/theme'
 import type { Trip } from '../../types/trip'
+import { ShareTripSheet } from '../MyTrips/ShareTripSheet'
 
 const THEME_OPTIONS: { value: ThemePref; label: string }[] = [
   { value: 'light', label: 'Claro' },
@@ -29,12 +31,14 @@ function isValidTrip(data: unknown): data is Trip {
   return Boolean(t.meta && Array.isArray(t.itinerario) && Array.isArray(t.reservas) && Array.isArray(t.checklists) && Array.isArray(t.gastos))
 }
 
-export function SettingsScreen({ onBack }: { onBack: () => void }) {
+export function SettingsScreen({ onBack, onExitTrip }: { onBack: () => void; onExitTrip: () => void }) {
   const { trip, dispatch } = useTrip()
   const { pref, setPref } = useTheme()
+  const { signOut } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importError, setImportError] = useState<string | null>(null)
   const [importOk, setImportOk] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   function handleExport() {
     const blob = new Blob([JSON.stringify(trip, null, 2)], { type: 'application/json' })
@@ -76,6 +80,21 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
       <ScreenHeader title="Configurações" onBack={onBack} />
 
       <div className="px-lg py-base flex flex-col gap-lg">
+        <div>
+          <h2 className="text-caption-upper text-muted dark:text-on-dark-soft mb-sm">Conta e viagem</h2>
+          <div className="flex flex-col gap-sm">
+            <Button variant="outline" icon={<Share2 size={16} />} onClick={() => setShareOpen(true)}>
+              Convidar alguém pra essa viagem
+            </Button>
+            <Button variant="outline" onClick={onExitTrip}>
+              Trocar de viagem
+            </Button>
+            <Button variant="outline" icon={<LogOut size={16} />} onClick={signOut}>
+              Sair da conta
+            </Button>
+          </div>
+        </div>
+
         <div>
           <h2 className="text-caption-upper text-muted dark:text-on-dark-soft mb-sm">Aparência</h2>
           <Card padded={false} className="flex overflow-hidden">
@@ -151,6 +170,8 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
           </Card>
         </div>
       </div>
+
+      <ShareTripSheet open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   )
 }

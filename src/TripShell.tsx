@@ -14,7 +14,7 @@ export type TabKey = 'inicio' | 'roteiro' | 'reservas' | 'gastos' | 'mais'
 export type MoreKey = 'menu' | 'seguro' | 'checklists' | 'dicas' | 'config'
 
 /** O app de abas de uma viagem específica (Início/Roteiro/Reservas/Gastos/Mais). */
-export function TripShell() {
+export function TripShell({ onExitTrip }: { onExitTrip: () => void }) {
   const [tab, setTab] = useState<TabKey>('inicio')
   const [morePage, setMorePage] = useState<MoreKey>('menu')
 
@@ -38,7 +38,9 @@ export function TripShell() {
         {tab === 'mais' && morePage === 'seguro' && <InsuranceScreen onBack={() => goToMorePage('menu')} />}
         {tab === 'mais' && morePage === 'checklists' && <ChecklistsScreen onBack={() => goToMorePage('menu')} />}
         {tab === 'mais' && morePage === 'dicas' && <TipsScreen onBack={() => goToMorePage('menu')} />}
-        {tab === 'mais' && morePage === 'config' && <SettingsScreen onBack={() => goToMorePage('menu')} />}
+        {tab === 'mais' && morePage === 'config' && (
+          <SettingsScreen onBack={() => goToMorePage('menu')} onExitTrip={onExitTrip} />
+        )}
       </main>
       <TabBar active={tab} onChange={handleTabChange} />
     </div>

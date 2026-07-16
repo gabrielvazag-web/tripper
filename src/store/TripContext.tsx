@@ -1,19 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import type { Checklist, ChecklistItem, Dica, DiaRoteiro, Gasto, Reserva, Seguro, Trip } from '../types/trip'
-import { seedTrip } from './seed'
+import { supabase } from '../lib/supabase'
 import { newId } from '../lib/id'
-
-const STORAGE_KEY = 'africatrip:trip:v1'
-
-function loadInitialState(): Trip {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as Trip
-  } catch {
-    // localStorage indisponível ou dado corrompido — cai pro seed
-  }
-  return seedTrip
-}
 
 type Action =
   | { type: 'meta/update'; patch: Partial<Trip['meta']> }
@@ -143,22 +131,62 @@ function reducer(state: Trip, action: Action): Trip {
 type TripContextValue = {
   trip: Trip
   dispatch: React.Dispatch<Action>
+  tripId: string
 }
 
 const TripContext = createContext<TripContextValue | null>(null)
 
-export function TripProvider({ children }: { children: ReactNode }) {
-  const [trip, dispatch] = useReducer(reducer, undefined, loadInitialState)
+/**
+ * A viagem já vem carregada de fora (lista de viagens ou criação) — o Provider só
+ * cuida de manter o Supabase em dia: escreve com debounce a cada mudança e escuta
+ * o realtime pra refletir edições feitas pela outra pessoa na mesma viagem.
+ */
+export function TripProvider({ tripId, initialTrip, children }: { tripId: string; initialTrip: Trip; children: ReactNode }) {
+  const [trip, dispatch] = useReducer(reducer, initialTrip)
+  const lastPushedJson = useRef(JSON.stringify(initialTrip))
+  const isFirstRun = useRef(true)
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(trip))
-    } catch {
-      // storage cheio/indisponível — ignora silenciosamente, dado ainda vive em memória
-    }
-  }, [trip])
+    const channel = supabase
+      .channel(`trip-${tripId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'trips', filter: `id=eq.${tripId}` },
+        (payload) => {
+          const incoming = (payload.new as { data: Trip }).data
+          const incomingJson = JSON.stringify(incoming)
+          if (incomingJson === lastPushedJson.current) return
+          lastPushedJson.current = incomingJson
+          dispatch({ type: 'trip/replace', trip: incoming })
+        },
+      )
+      .subscribe()
 
-  const value = useMemo(() => ({ trip, dispatch }), [trip])
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [tripId])
+
+  useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false
+      return
+    }
+    const json = JSON.stringify(trip)
+    const handle = setTimeout(() => {
+      lastPushedJson.current = json
+      supabase
+        .from('trips')
+        .update({ data: trip })
+        .eq('id', tripId)
+        .then(({ error }) => {
+          if (error) console.error('Falha ao salvar viagem no Supabase', error)
+        })
+    }, 700)
+    return () => clearTimeout(handle)
+  }, [trip, tripId])
+
+  const value = useMemo(() => ({ trip, dispatch, tripId }), [trip, tripId])
 
   return <TripContext.Provider value={value}>{children}</TripContext.Provider>
 }

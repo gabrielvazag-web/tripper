@@ -3,7 +3,10 @@ import { Binoculars, Car, Compass, Mountain, PawPrint, Plane, TreePine } from 'l
 type Theme = { icon: typeof Mountain; from: string; to: string; photo?: string }
 
 const THEMES: { match: RegExp; theme: Theme }[] = [
-  { match: /cabo|table/i, theme: { icon: Mountain, from: '#a8c8e8', to: '#c8b8e0', photo: '/photos/cidade-do-cabo.jpg' } },
+  {
+    match: /cabo|table|áfrica do sul|africa do sul|south africa/i,
+    theme: { icon: Mountain, from: '#a8c8e8', to: '#c8b8e0', photo: '/photos/cidade-do-cabo.jpg' },
+  },
   {
     match: /garden|knysna|wilderness|plett|tsitsikamma|hermanus/i,
     theme: { icon: TreePine, from: '#a7e5d3', to: '#a8c8e8', photo: '/photos/garden-route.jpg' },
