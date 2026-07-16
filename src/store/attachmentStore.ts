@@ -1,19 +1,30 @@
-import { createStore, get, set, del } from 'idb-keyval'
-import { newId } from '../lib/id'
+import { supabase } from '../lib/supabase'
 
-const store = createStore('africatrip-images', 'anexos')
+const BUCKET = 'anexos'
 
-/** Salva qualquer arquivo (foto ou PDF) localmente e devolve o id pra referenciar depois. */
-export async function saveAttachment(file: File): Promise<string> {
-  const id = newId('img')
-  await set(id, file, store)
-  return id
+/** Sobe um arquivo (foto ou PDF) pro Storage da viagem e devolve o caminho pra guardar no lugar de imagemId. */
+export async function saveAttachment(tripId: string, file: File): Promise<string> {
+  const path = `${tripId}/${crypto.randomUUID()}/${file.name}`
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file)
+  if (error) throw error
+  return path
 }
 
-export async function getAttachmentBlob(id: string): Promise<Blob | undefined> {
-  return get<Blob>(id, store)
+/** URL assinada temporária (1h) pra exibir/abrir o arquivo. */
+export async function getAttachmentUrl(path: string): Promise<string | undefined> {
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60 * 60)
+  if (error) return undefined
+  return data.signedUrl
 }
 
-export async function deleteAttachment(id: string): Promise<void> {
-  await del(id, store)
+export async function deleteAttachment(path: string): Promise<void> {
+  await supabase.storage.from(BUCKET).remove([path])
+}
+
+export function attachmentFileName(path: string): string {
+  return path.split('/').pop() ?? path
+}
+
+export function isPdfPath(path: string): boolean {
+  return path.toLowerCase().endsWith('.pdf')
 }

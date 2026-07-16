@@ -1,30 +1,30 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Camera, FileText, Trash2, X } from 'lucide-react'
-import { deleteAttachment, getAttachmentBlob, saveAttachment } from '../../store/attachmentStore'
+import { attachmentFileName, deleteAttachment, getAttachmentUrl, isPdfPath, saveAttachment } from '../../store/attachmentStore'
+import { useTrip } from '../../store/TripContext'
 
 export function AttachmentField({ imageId, onChange }: { imageId?: string; onChange: (id: string | undefined) => void }) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [isPdf, setIsPdf] = useState(false)
-  const [nomeArquivo, setNomeArquivo] = useState<string | null>(null)
+  const { tripId } = useTrip()
+  const [url, setUrl] = useState<string | null>(null)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const isPdf = imageId ? isPdfPath(imageId) : false
+  const nomeArquivo = imageId ? attachmentFileName(imageId) : null
 
   useEffect(() => {
     if (!imageId) {
-      setPreviewUrl(null)
+      setUrl(null)
       return
     }
-    let url: string | undefined
-    getAttachmentBlob(imageId).then((blob) => {
-      if (!blob) return
-      url = URL.createObjectURL(blob)
-      setPreviewUrl(url)
-      setIsPdf(blob.type === 'application/pdf')
-      setNomeArquivo(blob instanceof File ? blob.name : null)
+    let cancelled = false
+    getAttachmentUrl(imageId).then((u) => {
+      if (!cancelled) setUrl(u ?? null)
     })
     return () => {
-      if (url) URL.revokeObjectURL(url)
+      cancelled = true
     }
   }, [imageId])
 
@@ -33,9 +33,14 @@ export function AttachmentField({ imageId, onChange }: { imageId?: string; onCha
     e.target.value = ''
     if (!file) return
     const previousId = imageId
-    const newImageId = await saveAttachment(file)
-    onChange(newImageId)
-    if (previousId) await deleteAttachment(previousId)
+    setUploading(true)
+    try {
+      const newImageId = await saveAttachment(tripId, file)
+      onChange(newImageId)
+      if (previousId) await deleteAttachment(previousId)
+    } finally {
+      setUploading(false)
+    }
   }
 
   async function handleRemove() {
@@ -44,9 +49,9 @@ export function AttachmentField({ imageId, onChange }: { imageId?: string; onCha
   }
 
   function handleOpen() {
-    if (!previewUrl) return
+    if (!url) return
     if (isPdf) {
-      window.open(previewUrl, '_blank', 'noopener')
+      window.open(url, '_blank', 'noopener')
     } else {
       setLightboxOpen(true)
     }
@@ -56,19 +61,21 @@ export function AttachmentField({ imageId, onChange }: { imageId?: string; onCha
     <div>
       <p className="text-body-sm text-muted mb-xxs dark:text-on-dark-soft">Anexo</p>
 
-      {previewUrl ? (
+      {imageId ? (
         <div className="flex items-center gap-sm">
-          <button onClick={handleOpen} className="shrink-0" aria-label={isPdf ? 'Abrir PDF' : 'Ver imagem'}>
+          <button onClick={handleOpen} className="shrink-0" aria-label={isPdf ? 'Abrir PDF' : 'Ver imagem'} disabled={!url}>
             {isPdf ? (
               <span className="w-16 h-16 rounded-md border border-hairline dark:border-hairline-dark bg-surface-strong dark:bg-white/10 flex items-center justify-center">
                 <FileText size={24} className="text-ink dark:text-on-dark" />
               </span>
+            ) : url ? (
+              <img src={url} alt="Anexo" className="w-16 h-16 rounded-md object-cover border border-hairline dark:border-hairline-dark" />
             ) : (
-              <img src={previewUrl} alt="Anexo" className="w-16 h-16 rounded-md object-cover border border-hairline dark:border-hairline-dark" />
+              <span className="w-16 h-16 rounded-md border border-hairline dark:border-hairline-dark bg-surface-strong dark:bg-white/10 animate-pulse" />
             )}
           </button>
           <div className="flex flex-col gap-xs min-w-0">
-            {isPdf && nomeArquivo && <p className="text-body-sm text-ink dark:text-on-dark truncate">{nomeArquivo}</p>}
+            {nomeArquivo && <p className="text-body-sm text-ink dark:text-on-dark truncate">{nomeArquivo}</p>}
             <button onClick={() => inputRef.current?.click()} className="text-body-sm text-ink dark:text-on-dark active:opacity-70 text-left">
               Trocar arquivo
             </button>
@@ -80,16 +87,17 @@ export function AttachmentField({ imageId, onChange }: { imageId?: string; onCha
       ) : (
         <button
           onClick={() => inputRef.current?.click()}
-          className="inline-flex items-center gap-xs h-10 px-base rounded-md border border-dashed border-hairline-strong dark:border-hairline-dark-strong text-body-sm text-muted dark:text-on-dark-soft active:bg-surface-strong dark:active:bg-white/5"
+          disabled={uploading}
+          className="inline-flex items-center gap-xs h-10 px-base rounded-md border border-dashed border-hairline-strong dark:border-hairline-dark-strong text-body-sm text-muted dark:text-on-dark-soft active:bg-surface-strong dark:active:bg-white/5 disabled:opacity-60"
         >
-          <Camera size={16} /> Anexar imagem ou PDF
+          <Camera size={16} /> {uploading ? 'Enviando…' : 'Anexar imagem ou PDF'}
         </button>
       )}
 
       <input ref={inputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileChange} />
 
       {lightboxOpen &&
-        previewUrl &&
+        url &&
         !isPdf &&
         createPortal(
           <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-lg" onClick={() => setLightboxOpen(false)}>
@@ -100,7 +108,7 @@ export function AttachmentField({ imageId, onChange }: { imageId?: string; onCha
             >
               <X size={22} className="text-white" />
             </button>
-            <img src={previewUrl} alt="Anexo" className="max-w-full max-h-full rounded-lg object-contain" />
+            <img src={url} alt="Anexo" className="max-w-full max-h-full rounded-lg object-contain" />
           </div>,
           document.body,
         )}
