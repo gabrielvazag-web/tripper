@@ -96,6 +96,36 @@ export function SettingsScreen({ onBack, onExitTrip }: { onBack: () => void; onE
         </div>
 
         <div>
+          <h2 className="text-caption-upper text-muted dark:text-on-dark-soft mb-sm">Dados da viagem</h2>
+          <Card className="flex flex-col gap-base">
+            <TextField
+              label="Destino"
+              value={trip.meta.destino}
+              onChange={(e) => dispatch({ type: 'meta/update', patch: { destino: e.target.value } })}
+            />
+            <TextField
+              label="Título"
+              value={trip.meta.titulo}
+              onChange={(e) => dispatch({ type: 'meta/update', patch: { titulo: e.target.value } })}
+            />
+            <div className="grid grid-cols-2 gap-sm">
+              <TextField
+                label="De"
+                type="date"
+                value={trip.meta.inicio}
+                onChange={(e) => dispatch({ type: 'meta/update', patch: { inicio: e.target.value } })}
+              />
+              <TextField
+                label="Até"
+                type="date"
+                value={trip.meta.fim}
+                onChange={(e) => dispatch({ type: 'meta/update', patch: { fim: e.target.value } })}
+              />
+            </div>
+          </Card>
+        </div>
+
+        <div>
           <h2 className="text-caption-upper text-muted dark:text-on-dark-soft mb-sm">Aparência</h2>
           <Card padded={false} className="flex overflow-hidden">
             {THEME_OPTIONS.map((opt, i) => (
