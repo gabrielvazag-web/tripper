@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BookMarked, Eye, EyeOff, ListChecks, Wallet } from 'lucide-react'
+import { BookMarked, Eye, EyeOff, ListChecks, NotebookPen, Wallet } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { Card } from '../../components/ui/Card'
 import { Chip } from '../../components/ui/Chip'
@@ -18,6 +18,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (tab: TabKey, more?: Mo
   const { hoje, proximo } = findHojeEProximo(trip.itinerario, today)
   const balances = computeBalances(getTodosGastos(trip), trip.meta)
 
+  const notas = trip.notas ?? []
   const listaDeHoje = trip.checklists.find((l) => l.grupo === 'mala') ?? trip.checklists[0]
   const feitosHoje = listaDeHoje?.itens.filter((i) => i.feito).length ?? 0
   const totalHoje = listaDeHoje?.itens.length ?? 0
@@ -133,6 +134,22 @@ export function HomeScreen({ onNavigate }: { onNavigate: (tab: TabKey, more?: Mo
             <p className="mt-sm text-body-sm text-ink dark:text-on-dark">{gastosOcultos ? 'Toque no olho pra ver o saldo' : balances.resumo}</p>
           )}
         </Card>
+      </div>
+
+      <div className="px-lg animate-fade-in-up" style={{ animationDelay: '220ms' }}>
+        <button onClick={() => onNavigate('mais', 'notas')} className="w-full text-left">
+          <Card className="flex items-center gap-base active:opacity-90 transition-opacity">
+            <span className="w-10 h-10 rounded-full bg-surface-strong dark:bg-white/10 flex items-center justify-center shrink-0">
+              <NotebookPen size={18} className="text-ink dark:text-on-dark" />
+            </span>
+            <div className="flex-1">
+              <p className="text-title-sm font-sans text-ink dark:text-on-dark">Caderneta</p>
+              <p className="text-body-sm text-muted dark:text-on-dark-soft">
+                {notas.length === 0 ? 'Anote o que for organizando pra viagem' : `${notas.length} anotação${notas.length > 1 ? 'ões' : ''}`}
+              </p>
+            </div>
+          </Card>
+        </button>
       </div>
     </div>
   )

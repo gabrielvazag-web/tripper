@@ -27,6 +27,9 @@ type Action =
   | { type: 'dicas/add'; dica: Omit<Dica, 'id'> }
   | { type: 'dicas/update'; id: string; patch: Partial<Dica> }
   | { type: 'dicas/remove'; id: string }
+  | { type: 'notas/add'; texto: string }
+  | { type: 'notas/update'; id: string; texto: string }
+  | { type: 'notas/remove'; id: string }
   | { type: 'trip/replace'; trip: Trip }
 
 function reducer(state: Trip, action: Action): Trip {
@@ -119,6 +122,13 @@ function reducer(state: Trip, action: Action): Trip {
       return { ...state, dicas: state.dicas.map((t) => (t.id === action.id ? { ...t, ...action.patch } : t)) }
     case 'dicas/remove':
       return { ...state, dicas: state.dicas.filter((t) => t.id !== action.id) }
+
+    case 'notas/add':
+      return { ...state, notas: [{ id: newId('n'), texto: action.texto, criadoEm: new Date().toISOString() }, ...(state.notas ?? [])] }
+    case 'notas/update':
+      return { ...state, notas: (state.notas ?? []).map((n) => (n.id === action.id ? { ...n, texto: action.texto } : n)) }
+    case 'notas/remove':
+      return { ...state, notas: (state.notas ?? []).filter((n) => n.id !== action.id) }
 
     case 'trip/replace':
       return action.trip

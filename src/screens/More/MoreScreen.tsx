@@ -1,4 +1,4 @@
-import { ChevronRight, ListChecks, Settings, ShieldCheck, Sparkles } from 'lucide-react'
+import { ChevronRight, ListChecks, NotebookPen, Settings, ShieldCheck, Sparkles } from 'lucide-react'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
 import { Card } from '../../components/ui/Card'
 import type { MoreKey } from '../../TripShell'
@@ -6,6 +6,7 @@ import type { MoreKey } from '../../TripShell'
 const ITEMS: { key: MoreKey; label: string; icon: typeof Settings }[] = [
   { key: 'seguro', label: 'Seguro viagem', icon: ShieldCheck },
   { key: 'checklists', label: 'Checklists', icon: ListChecks },
+  { key: 'notas', label: 'Caderneta', icon: NotebookPen },
   { key: 'dicas', label: 'Dicas', icon: Sparkles },
   { key: 'config', label: 'Configurações', icon: Settings },
 ]

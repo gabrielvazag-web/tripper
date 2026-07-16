@@ -8,10 +8,11 @@ import { MoreScreen } from './screens/More/MoreScreen'
 import { ChecklistsScreen } from './screens/Checklists/ChecklistsScreen'
 import { InsuranceScreen } from './screens/Insurance/InsuranceScreen'
 import { TipsScreen } from './screens/Tips/TipsScreen'
+import { NotesScreen } from './screens/Notes/NotesScreen'
 import { SettingsScreen } from './screens/Settings/SettingsScreen'
 
 export type TabKey = 'inicio' | 'roteiro' | 'reservas' | 'gastos' | 'mais'
-export type MoreKey = 'menu' | 'seguro' | 'checklists' | 'dicas' | 'config'
+export type MoreKey = 'menu' | 'seguro' | 'checklists' | 'dicas' | 'notas' | 'config'
 
 /** O app de abas de uma viagem específica (Início/Roteiro/Reservas/Gastos/Mais). */
 export function TripShell({ onExitTrip }: { onExitTrip: () => void }) {
@@ -38,6 +39,7 @@ export function TripShell({ onExitTrip }: { onExitTrip: () => void }) {
         {tab === 'mais' && morePage === 'seguro' && <InsuranceScreen onBack={() => goToMorePage('menu')} />}
         {tab === 'mais' && morePage === 'checklists' && <ChecklistsScreen onBack={() => goToMorePage('menu')} />}
         {tab === 'mais' && morePage === 'dicas' && <TipsScreen onBack={() => goToMorePage('menu')} />}
+        {tab === 'mais' && morePage === 'notas' && <NotesScreen onBack={() => goToMorePage('menu')} />}
         {tab === 'mais' && morePage === 'config' && (
           <SettingsScreen onBack={() => goToMorePage('menu')} onExitTrip={onExitTrip} />
         )}

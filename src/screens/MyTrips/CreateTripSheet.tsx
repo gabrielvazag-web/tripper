@@ -14,6 +14,7 @@ function buildTrip(destino: string, titulo: string, inicio: string, fim: string)
     checklists: [],
     gastos: [],
     dicas: [],
+    notas: [],
   }
 }
 

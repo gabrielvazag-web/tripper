@@ -20,6 +20,7 @@ export type Trip = {
   checklists: Checklist[]
   gastos: Gasto[]
   dicas: Dica[]
+  notas: Nota[]
 }
 
 export type DiaRoteiro = {
@@ -95,4 +96,10 @@ export type Dica = {
   categoria: string
   titulo: string
   texto: string
+}
+
+export type Nota = {
+  id: string
+  texto: string
+  criadoEm: string
 }
