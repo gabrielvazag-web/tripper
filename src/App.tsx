@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTheme } from './lib/useTheme'
 import { useAuth } from './store/AuthContext'
 import { TripProvider } from './store/TripContext'
@@ -28,6 +28,7 @@ export default function App() {
   const [invitePreview, setInvitePreview] = useState<InvitePreview>(null)
   const [screen, setScreen] = useState<RootScreen>('loading')
   const [activeTrip, setActiveTrip] = useState<{ id: string; data: Trip } | null>(null)
+  const decidedUserIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!inviteToken || session) return
@@ -40,9 +41,16 @@ export default function App() {
   useEffect(() => {
     if (authLoading) return
     if (!session) {
+      decidedUserIdRef.current = null
       setScreen('login')
       return
     }
+    // Supabase reemite a sessão (novo objeto) em refresh automático de token —
+    // ex.: ao voltar o foco pra aba depois de fechar um anexo. Sem essa guarda,
+    // isso refazia a decisão de navegação do zero e chutava o usuário pra fora
+    // da viagem/tela em que estava.
+    if (decidedUserIdRef.current === session.user.id) return
+    decidedUserIdRef.current = session.user.id
 
     let cancelled = false
 
