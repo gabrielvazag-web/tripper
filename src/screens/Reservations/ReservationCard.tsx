@@ -31,9 +31,10 @@ export function ReservationCard({
     }
   }
 
-  const datas = [reserva.checkin && formatDateBR(reserva.checkin), reserva.checkout && formatDateBR(reserva.checkout)]
-    .filter(Boolean)
-    .join(' → ')
+  const datas =
+    reserva.tipo === 'voo'
+      ? [reserva.checkin && formatDateBR(reserva.checkin), reserva.horario].filter(Boolean).join(' · ')
+      : [reserva.checkin && formatDateBR(reserva.checkin), reserva.checkout && formatDateBR(reserva.checkout)].filter(Boolean).join(' → ')
 
   const Icon = TIPO_ICON[reserva.tipo]
 

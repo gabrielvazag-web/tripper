@@ -12,6 +12,7 @@ type FormState = {
   confirmacao: string
   checkin: string
   checkout: string
+  horario: string
   local: string
   valor: string
   moeda: Moeda
@@ -27,6 +28,7 @@ function toFormState(pessoas: Pessoa[], r?: Reserva, defaultTipo?: TipoReserva):
     confirmacao: r?.confirmacao ?? '',
     checkin: r?.checkin ?? '',
     checkout: r?.checkout ?? '',
+    horario: r?.horario ?? '',
     local: r?.local ?? '',
     valor: r?.valor !== undefined ? String(r.valor) : '',
     moeda: r?.moeda ?? 'BRL',
@@ -69,6 +71,7 @@ export function ReservationEditorSheet({
       confirmacao: form.confirmacao || undefined,
       checkin: form.checkin || undefined,
       checkout: form.checkout || undefined,
+      horario: form.tipo === 'voo' ? form.horario || undefined : undefined,
       local: form.local || undefined,
       valor: temValor ? Number(form.valor) : undefined,
       moeda: temValor ? form.moeda : undefined,
@@ -96,10 +99,17 @@ export function ReservationEditorSheet({
           <option value="a_reservar">A reservar</option>
         </SelectField>
 
-        <div className="grid grid-cols-2 gap-sm">
-          <TextField label="Check-in" type="date" value={form.checkin} onChange={(e) => setForm((f) => ({ ...f, checkin: e.target.value }))} />
-          <TextField label="Check-out" type="date" value={form.checkout} onChange={(e) => setForm((f) => ({ ...f, checkout: e.target.value }))} />
-        </div>
+        {form.tipo === 'voo' ? (
+          <div className="grid grid-cols-2 gap-sm">
+            <TextField label="Data do voo" type="date" value={form.checkin} onChange={(e) => setForm((f) => ({ ...f, checkin: e.target.value }))} />
+            <TextField label="Horário do voo" type="time" value={form.horario} onChange={(e) => setForm((f) => ({ ...f, horario: e.target.value }))} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-sm">
+            <TextField label="Check-in" type="date" value={form.checkin} onChange={(e) => setForm((f) => ({ ...f, checkin: e.target.value }))} />
+            <TextField label="Check-out" type="date" value={form.checkout} onChange={(e) => setForm((f) => ({ ...f, checkout: e.target.value }))} />
+          </div>
+        )}
 
         <TextField label="Local" value={form.local} onChange={(e) => setForm((f) => ({ ...f, local: e.target.value }))} />
         <TextField label="Número de confirmação" value={form.confirmacao} onChange={(e) => setForm((f) => ({ ...f, confirmacao: e.target.value }))} />

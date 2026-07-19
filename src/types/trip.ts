@@ -45,6 +45,8 @@ export type Reserva = {
   confirmacao?: string
   checkin?: string
   checkout?: string
+  /** horário do voo (HH:MM) — só faz sentido pra tipo 'voo' */
+  horario?: string
   local?: string
   valor?: number
   moeda?: Moeda
