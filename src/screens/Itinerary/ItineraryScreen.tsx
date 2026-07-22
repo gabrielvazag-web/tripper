@@ -3,7 +3,6 @@ import { Plus } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
 import { StaggerList, StaggerItem } from '../../components/ui/Stagger'
-import { RouteMap } from '../../components/ui/RouteMap'
 import { TrechoCard } from './TrechoCard'
 import { TrechoDetail } from './TrechoDetail'
 import { DayEditorSheet } from './DayEditorSheet'
@@ -73,7 +72,7 @@ export function ItineraryScreen() {
             onDeleteParada={handleDeleteParada}
           />
         </>
-      ) : trechos.length === 0 ? (
+      ) : (
         <>
           <ScreenHeader
             title="Roteiro"
@@ -86,56 +85,29 @@ export function ItineraryScreen() {
               </button>
             }
           />
-          <div className="px-lg py-base flex flex-col gap-sm">
-            <p className="text-body-sm text-muted dark:text-on-dark-soft text-center py-xl">Nenhuma parada no roteiro ainda.</p>
+          <StaggerList className="px-lg py-base flex flex-col gap-sm">
+            {trechos.length === 0 && (
+              <p className="text-body-sm text-muted dark:text-on-dark-soft text-center py-xl">Nenhuma parada no roteiro ainda.</p>
+            )}
+
+            {trechos.map((trecho) => (
+              <StaggerItem key={trecho.key}>
+                <TrechoCard
+                  trecho={trecho}
+                  isAtual={trecho.dias.some((d) => diffInDays(parseISODate(d.data), today) === 0)}
+                  onOpen={() => setOpenTrechoKey(trecho.key)}
+                />
+              </StaggerItem>
+            ))}
+
             <button
               onClick={() => setNovaParadaOpen(true)}
               className="flex items-center justify-center gap-xs h-12 rounded-xl border border-dashed border-hairline-strong dark:border-hairline-dark-strong text-body-md text-muted dark:text-on-dark-soft active:bg-surface-strong dark:active:bg-white/5"
             >
               <Plus size={18} /> Nova parada
             </button>
-          </div>
+          </StaggerList>
         </>
-      ) : (
-        <div className="relative -mb-24" style={{ height: '100dvh' }}>
-          <div className="absolute inset-0">
-            <RouteMap trechos={trechos} destino={trip.meta.destino} />
-          </div>
-
-          <div className="absolute top-0 inset-x-0 z-20 safe-top px-lg pt-base flex items-center justify-between pointer-events-none">
-            <span className="pointer-events-auto inline-flex items-center h-9 px-base rounded-pill bg-surface-card/90 dark:bg-surface-dark-elevated/90 backdrop-blur shadow-soft text-body-sm font-medium text-ink dark:text-on-dark">
-              Roteiro
-            </span>
-            <button
-              onClick={() => setNovaParadaOpen(true)}
-              aria-label="Nova parada"
-              className="pointer-events-auto w-9 h-9 rounded-full bg-surface-card/90 dark:bg-surface-dark-elevated/90 backdrop-blur shadow-soft flex items-center justify-center active:scale-95 transition-transform"
-            >
-              <Plus size={18} className="text-ink dark:text-on-dark" />
-            </button>
-          </div>
-
-          <div className="absolute inset-x-lg bottom-24 z-10 max-h-[55%] overflow-y-auto rounded-xxl bg-surface-card dark:bg-surface-dark-elevated shadow-[0_8px_28px_rgba(0,0,0,0.22)]">
-            <StaggerList className="p-lg flex flex-col gap-sm">
-              {trechos.map((trecho) => (
-                <StaggerItem key={trecho.key}>
-                  <TrechoCard
-                    trecho={trecho}
-                    isAtual={trecho.dias.some((d) => diffInDays(parseISODate(d.data), today) === 0)}
-                    onOpen={() => setOpenTrechoKey(trecho.key)}
-                  />
-                </StaggerItem>
-              ))}
-
-              <button
-                onClick={() => setNovaParadaOpen(true)}
-                className="flex items-center justify-center gap-xs h-12 rounded-xl border border-dashed border-hairline-strong dark:border-hairline-dark-strong text-body-md text-muted dark:text-on-dark-soft active:bg-surface-strong dark:active:bg-white/5"
-              >
-                <Plus size={18} /> Nova parada
-              </button>
-            </StaggerList>
-          </div>
-        </div>
       )}
 
       <DayEditorSheet
