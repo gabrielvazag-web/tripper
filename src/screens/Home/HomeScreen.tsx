@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { BookMarked, Eye, EyeOff, ListChecks, NotebookPen, Wallet } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { Card } from '../../components/ui/Card'
 import { Chip } from '../../components/ui/Chip'
+import { fade } from '../../lib/motion'
 import { Logo } from '../../components/ui/Logo'
 import { MapLink } from '../../components/ui/MapLink'
 import type { TabKey, MoreKey } from '../../TripShell'
@@ -125,8 +127,19 @@ export function HomeScreen({ onNavigate }: { onNavigate: (tab: TabKey, more?: Mo
             </button>
           </div>
           <div className="flex items-baseline justify-between">
-            <p className="text-display-sm font-display text-ink dark:text-on-dark">
-              {gastosOcultos ? '••••••' : formatBRL(balances.totalBRL)}
+            <p className="text-display-sm font-display text-ink dark:text-on-dark overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={gastosOcultos ? 'oculto' : 'visivel'}
+                  className="inline-block"
+                  variants={fade}
+                  initial="hidden"
+                  animate="show"
+                  exit="hidden"
+                >
+                  {gastosOcultos ? '••••••' : formatBRL(balances.totalBRL)}
+                </motion.span>
+              </AnimatePresence>
             </p>
             {trip.meta.orcamentoBRL !== undefined && (
               <p className="text-body-sm text-muted dark:text-on-dark-soft">

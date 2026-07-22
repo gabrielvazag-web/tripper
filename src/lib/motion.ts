@@ -70,6 +70,13 @@ export const sheet: Variants = {
   exit: { y: '100%', transition: { duration: duration.fast, ease: ease.inOut } },
 }
 
+// Troca de tela/aba — fade + leve slide horizontal, com saída mais rápida
+export const screenTransition: Variants = {
+  hidden: { opacity: 0, x: 8 },
+  show: { opacity: 1, x: 0, transition: { duration: duration.base, ease: ease.out } },
+  exit: { opacity: 0, x: -8, transition: { duration: duration.fast, ease: ease.inOut } },
+}
+
 // Expand/collapse de altura (accordion)
 export const collapse: Variants = {
   hidden: { height: 0, opacity: 0 },

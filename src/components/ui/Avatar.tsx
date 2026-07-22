@@ -10,12 +10,13 @@ function colorFor(name: string) {
 }
 
 export function Avatar({ name, size = 32 }: { name: string; size?: number }) {
-  const initial = name.trim().charAt(0).toUpperCase()
+  const safeName = name ?? ''
+  const initial = safeName.trim().charAt(0).toUpperCase() || '?'
   const reduceMotion = useReducedMotion()
 
   return (
     <motion.span
-      className={`inline-flex items-center justify-center shrink-0 rounded-full font-semibold text-ink ${colorFor(name)}`}
+      className={`inline-flex items-center justify-center shrink-0 rounded-full font-semibold text-ink ${colorFor(safeName)}`}
       style={{ width: size, height: size, fontSize: size * 0.42 }}
       variants={reduceMotion ? undefined : popIn}
       initial="hidden"

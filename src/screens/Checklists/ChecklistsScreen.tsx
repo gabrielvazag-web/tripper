@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
+import { StaggerList, StaggerItem } from '../../components/ui/Stagger'
 import { Accordion } from '../../components/ui/Accordion'
 import { ProgressBar } from '../../components/ui/ProgressBar'
 import { Checkbox } from '../../components/ui/Checkbox'
@@ -33,12 +34,12 @@ export function ChecklistsScreen({ onBack }: { onBack: () => void }) {
     <div>
       <ScreenHeader title="Checklists" onBack={onBack} />
 
-      <div className="px-lg py-base flex flex-col gap-sm">
+      <StaggerList className="px-lg py-base flex flex-col gap-sm">
         {trip.checklists.map((lista) => {
           const feitos = lista.itens.filter((i) => i.feito).length
           return (
+            <StaggerItem key={lista.id}>
             <Accordion
-              key={lista.id}
               title={lista.titulo}
               subtitle={GRUPO_LABELS[lista.grupo]}
               defaultOpen
@@ -103,6 +104,7 @@ export function ChecklistsScreen({ onBack }: { onBack: () => void }) {
                 <Button type="submit" size="sm" icon={<Plus size={16} />} />
               </form>
             </Accordion>
+            </StaggerItem>
           )
         })}
 
@@ -112,7 +114,7 @@ export function ChecklistsScreen({ onBack }: { onBack: () => void }) {
         >
           <Plus size={18} /> Nova lista
         </button>
-      </div>
+      </StaggerList>
 
       <NovaListaSheet open={novaListaOpen} onClose={() => setNovaListaOpen(false)} />
     </div>

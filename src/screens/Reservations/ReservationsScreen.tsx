@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
+import { StaggerList, StaggerItem } from '../../components/ui/Stagger'
 import { ReservationCard } from './ReservationCard'
 import { ReservationTypeCard } from './ReservationTypeCard'
 import { ReservationEditorSheet } from './ReservationEditorSheet'
@@ -55,14 +56,15 @@ export function ReservationsScreen() {
       {grupoAberto ? (
         <>
           <ScreenHeader title={TIPO_LABELS[grupoAberto.tipo]} onBack={() => setTipoAberto(null)} />
-          <div className="px-lg py-base flex flex-col gap-sm">
+          <StaggerList className="px-lg py-base flex flex-col gap-sm">
             {grupoAberto.reservas.map((r) => (
-              <ReservationCard
-                key={r.id}
-                reserva={r}
-                onEdit={() => openEdit(r)}
-                onAttach={(imagemId) => dispatch({ type: 'reservas/update', id: r.id, patch: { imagemId } })}
-              />
+              <StaggerItem key={r.id}>
+                <ReservationCard
+                  reserva={r}
+                  onEdit={() => openEdit(r)}
+                  onAttach={(imagemId) => dispatch({ type: 'reservas/update', id: r.id, patch: { imagemId } })}
+                />
+              </StaggerItem>
             ))}
             <button
               onClick={() => openNew(grupoAberto.tipo)}
@@ -70,7 +72,7 @@ export function ReservationsScreen() {
             >
               <Plus size={18} /> Adicionar {TIPO_LABELS[grupoAberto.tipo].toLowerCase()}
             </button>
-          </div>
+          </StaggerList>
         </>
       ) : (
         <>
@@ -88,11 +90,13 @@ export function ReservationsScreen() {
               <p className="text-body-sm text-muted dark:text-on-dark-soft text-center py-xl">Nenhuma reserva cadastrada ainda.</p>
             )}
 
-            <div className="grid grid-cols-2 gap-sm">
+            <StaggerList className="grid grid-cols-2 gap-sm">
               {grupos.map(({ tipo, reservas }) => (
-                <ReservationTypeCard key={tipo} tipo={tipo} reservas={reservas} onOpen={() => setTipoAberto(tipo)} />
+                <StaggerItem key={tipo}>
+                  <ReservationTypeCard tipo={tipo} reservas={reservas} onOpen={() => setTipoAberto(tipo)} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerList>
           </div>
         </>
       )}

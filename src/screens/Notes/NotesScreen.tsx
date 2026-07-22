@@ -3,6 +3,7 @@ import { Pencil, Plus } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
 import { Card } from '../../components/ui/Card'
+import { StaggerList, StaggerItem } from '../../components/ui/Stagger'
 import { NoteEditorSheet } from './NoteEditorSheet'
 import type { Nota } from '../../types/trip'
 import { formatDateBR } from '../../lib/date'
@@ -50,7 +51,7 @@ export function NotesScreen({ onBack }: { onBack: () => void }) {
         }
       />
 
-      <div className="px-lg py-base flex flex-col gap-sm">
+      <StaggerList className="px-lg py-base flex flex-col gap-sm">
         <p className="text-body-sm text-muted dark:text-on-dark-soft -mt-xs mb-xs">
           Anotações soltas de antes e durante a viagem — ideias, lembretes, o que quiser guardar.
         </p>
@@ -60,17 +61,19 @@ export function NotesScreen({ onBack }: { onBack: () => void }) {
         )}
 
         {notas.map((n) => (
-          <button key={n.id} onClick={() => openEdit(n)} className="text-left">
-            <Card className="active:opacity-80 transition-opacity">
-              <div className="flex items-start justify-between gap-sm">
-                <p className="text-body-md text-ink dark:text-on-dark whitespace-pre-wrap">{n.texto}</p>
-                <Pencil size={14} className="text-muted-soft shrink-0 mt-[2px]" />
-              </div>
-              <p className="text-caption text-muted-soft mt-xs">{formatDateBR(n.criadoEm.slice(0, 10))}</p>
-            </Card>
-          </button>
+          <StaggerItem key={n.id}>
+            <button onClick={() => openEdit(n)} className="text-left w-full">
+              <Card className="active:opacity-80 transition-opacity">
+                <div className="flex items-start justify-between gap-sm">
+                  <p className="text-body-md text-ink dark:text-on-dark whitespace-pre-wrap">{n.texto}</p>
+                  <Pencil size={14} className="text-muted-soft shrink-0 mt-[2px]" />
+                </div>
+                <p className="text-caption text-muted-soft mt-xs">{formatDateBR(n.criadoEm.slice(0, 10))}</p>
+              </Card>
+            </button>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerList>
 
       <NoteEditorSheet
         open={sheetOpen}

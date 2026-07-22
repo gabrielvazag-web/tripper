@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
+import { StaggerList, StaggerItem } from '../../components/ui/Stagger'
 import { TrechoCard } from './TrechoCard'
 import { TrechoDetail } from './TrechoDetail'
 import { DayEditorSheet } from './DayEditorSheet'
@@ -84,18 +85,19 @@ export function ItineraryScreen() {
               </button>
             }
           />
-          <div className="px-lg py-base flex flex-col gap-sm">
+          <StaggerList className="px-lg py-base flex flex-col gap-sm">
             {trechos.length === 0 && (
               <p className="text-body-sm text-muted dark:text-on-dark-soft text-center py-xl">Nenhuma parada no roteiro ainda.</p>
             )}
 
             {trechos.map((trecho) => (
-              <TrechoCard
-                key={trecho.key}
-                trecho={trecho}
-                isAtual={trecho.dias.some((d) => diffInDays(parseISODate(d.data), today) === 0)}
-                onOpen={() => setOpenTrechoKey(trecho.key)}
-              />
+              <StaggerItem key={trecho.key}>
+                <TrechoCard
+                  trecho={trecho}
+                  isAtual={trecho.dias.some((d) => diffInDays(parseISODate(d.data), today) === 0)}
+                  onOpen={() => setOpenTrechoKey(trecho.key)}
+                />
+              </StaggerItem>
             ))}
 
             <button
@@ -104,7 +106,7 @@ export function ItineraryScreen() {
             >
               <Plus size={18} /> Nova parada
             </button>
-          </div>
+          </StaggerList>
         </>
       )}
 
