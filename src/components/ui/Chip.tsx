@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { popIn } from '../../lib/motion'
 
 type Tone = 'success' | 'warning' | 'neutral'
 
@@ -9,10 +11,17 @@ const tones: Record<Tone, string> = {
 }
 
 export function Chip({ tone = 'neutral', children }: { tone?: Tone; children: ReactNode }) {
+  const reduceMotion = useReducedMotion()
+
   return (
-    <span className={`inline-flex items-center shrink-0 whitespace-nowrap px-sm py-xxs rounded-pill text-caption-upper uppercase ${tones[tone]}`}>
+    <motion.span
+      className={`inline-flex items-center shrink-0 whitespace-nowrap px-sm py-xxs rounded-pill text-caption-upper uppercase ${tones[tone]}`}
+      variants={reduceMotion ? undefined : popIn}
+      initial="hidden"
+      animate="show"
+    >
       {children}
-    </span>
+    </motion.span>
   )
 }
 

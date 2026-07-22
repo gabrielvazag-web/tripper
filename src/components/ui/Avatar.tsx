@@ -1,3 +1,6 @@
+import { motion, useReducedMotion } from 'framer-motion'
+import { popIn } from '../../lib/motion'
+
 const PALETTE = ['bg-gradient-sky', 'bg-gradient-peach', 'bg-gradient-lavender', 'bg-gradient-mint', 'bg-gradient-rose']
 
 function colorFor(name: string) {
@@ -8,12 +11,17 @@ function colorFor(name: string) {
 
 export function Avatar({ name, size = 32 }: { name: string; size?: number }) {
   const initial = name.trim().charAt(0).toUpperCase()
+  const reduceMotion = useReducedMotion()
+
   return (
-    <span
+    <motion.span
       className={`inline-flex items-center justify-center shrink-0 rounded-full font-semibold text-ink ${colorFor(name)}`}
       style={{ width: size, height: size, fontSize: size * 0.42 }}
+      variants={reduceMotion ? undefined : popIn}
+      initial="hidden"
+      animate="show"
     >
       {initial}
-    </span>
+    </motion.span>
   )
 }

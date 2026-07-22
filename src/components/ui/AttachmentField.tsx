@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Camera, FileText, Trash2, X } from 'lucide-react'
 import { attachmentFileName, deleteAttachment, getAttachmentUrl, isPdfPath, saveAttachment } from '../../store/attachmentStore'
 import { useTrip } from '../../store/TripContext'
+import { backdrop, popIn } from '../../lib/motion'
 
 export function AttachmentField({ imageId, onChange }: { imageId?: string; onChange: (id: string | undefined) => void }) {
   const { tripId } = useTrip()
@@ -96,22 +98,38 @@ export function AttachmentField({ imageId, onChange }: { imageId?: string; onCha
 
       <input ref={inputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileChange} />
 
-      {lightboxOpen &&
-        url &&
-        !isPdf &&
-        createPortal(
-          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-lg" onClick={() => setLightboxOpen(false)}>
-            <button
+      {createPortal(
+        <AnimatePresence>
+          {lightboxOpen && url && !isPdf && (
+            <motion.div
+              className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-lg"
               onClick={() => setLightboxOpen(false)}
-              className="absolute top-lg right-lg p-xs rounded-full bg-white/10 active:bg-white/20"
-              aria-label="Fechar"
+              variants={backdrop}
+              initial="hidden"
+              animate="show"
+              exit="hidden"
             >
-              <X size={22} className="text-white" />
-            </button>
-            <img src={url} alt="Anexo" className="max-w-full max-h-full rounded-lg object-contain" />
-          </div>,
-          document.body,
-        )}
+              <button
+                onClick={() => setLightboxOpen(false)}
+                className="absolute top-lg right-lg p-xs rounded-full bg-white/10 active:bg-white/20"
+                aria-label="Fechar"
+              >
+                <X size={22} className="text-white" />
+              </button>
+              <motion.img
+                src={url}
+                alt="Anexo"
+                className="max-w-full max-h-full rounded-lg object-contain"
+                variants={popIn}
+                initial="hidden"
+                animate="show"
+                exit="hidden"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   )
 }

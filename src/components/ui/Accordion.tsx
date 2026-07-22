@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
+import { collapse } from '../../lib/motion'
 
 export function Accordion({
   title,
@@ -15,6 +17,7 @@ export function Accordion({
   children: ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
+  const reduceMotion = useReducedMotion()
 
   return (
     <div className="border border-hairline rounded-xl bg-surface-card dark:bg-surface-dark-elevated dark:border-hairline-dark overflow-hidden">
@@ -34,7 +37,19 @@ export function Accordion({
           />
         </div>
       </button>
-      {open && <div className="px-lg pb-lg border-t border-hairline dark:border-hairline-dark pt-base">{children}</div>}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            className="overflow-hidden"
+            variants={reduceMotion ? undefined : collapse}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+          >
+            <div className="px-lg pb-lg border-t border-hairline dark:border-hairline-dark pt-base">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
