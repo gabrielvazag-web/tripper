@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useTrip } from '../../store/TripContext'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
 import { StaggerList, StaggerItem } from '../../components/ui/Stagger'
+import { RouteMap } from '../../components/ui/RouteMap'
 import { TrechoCard } from './TrechoCard'
 import { TrechoDetail } from './TrechoDetail'
 import { DayEditorSheet } from './DayEditorSheet'
@@ -20,7 +21,7 @@ export function ItineraryScreen() {
   const [openTrechoKey, setOpenTrechoKey] = useState<string | null>(null)
 
   const today = todayAtMidnight()
-  const trechos = agruparPorTrecho(trip.itinerario)
+  const trechos = useMemo(() => agruparPorTrecho(trip.itinerario), [trip.itinerario])
   const trechoAberto = trechos.find((t) => t.key === openTrechoKey) ?? null
 
   function openNewDia(defaultBase?: string) {
@@ -88,6 +89,12 @@ export function ItineraryScreen() {
           <StaggerList className="px-lg py-base flex flex-col gap-sm">
             {trechos.length === 0 && (
               <p className="text-body-sm text-muted dark:text-on-dark-soft text-center py-xl">Nenhuma parada no roteiro ainda.</p>
+            )}
+
+            {trechos.length > 0 && (
+              <StaggerItem>
+                <RouteMap trechos={trechos} destino={trip.meta.destino} />
+              </StaggerItem>
             )}
 
             {trechos.map((trecho) => (
