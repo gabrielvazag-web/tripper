@@ -86,34 +86,42 @@ export function ItineraryScreen() {
               </button>
             }
           />
-          <StaggerList className="px-lg py-base flex flex-col gap-sm">
-            {trechos.length === 0 && (
+          {trechos.length === 0 ? (
+            <div className="px-lg py-base flex flex-col gap-sm">
               <p className="text-body-sm text-muted dark:text-on-dark-soft text-center py-xl">Nenhuma parada no roteiro ainda.</p>
-            )}
+              <button
+                onClick={() => setNovaParadaOpen(true)}
+                className="flex items-center justify-center gap-xs h-12 rounded-xl border border-dashed border-hairline-strong dark:border-hairline-dark-strong text-body-md text-muted dark:text-on-dark-soft active:bg-surface-strong dark:active:bg-white/5"
+              >
+                <Plus size={18} /> Nova parada
+              </button>
+            </div>
+          ) : (
+            <div className="relative">
+              <RouteMap trechos={trechos} destino={trip.meta.destino} bleed />
 
-            {trechos.length > 0 && (
-              <StaggerItem>
-                <RouteMap trechos={trechos} destino={trip.meta.destino} />
-              </StaggerItem>
-            )}
+              <div className="relative z-10 -mt-7 rounded-t-xxl bg-surface-card dark:bg-surface-dark-elevated shadow-[0_-12px_28px_rgba(0,0,0,0.12)]">
+                <StaggerList className="px-lg pt-xl pb-base flex flex-col gap-sm">
+                  {trechos.map((trecho) => (
+                    <StaggerItem key={trecho.key}>
+                      <TrechoCard
+                        trecho={trecho}
+                        isAtual={trecho.dias.some((d) => diffInDays(parseISODate(d.data), today) === 0)}
+                        onOpen={() => setOpenTrechoKey(trecho.key)}
+                      />
+                    </StaggerItem>
+                  ))}
 
-            {trechos.map((trecho) => (
-              <StaggerItem key={trecho.key}>
-                <TrechoCard
-                  trecho={trecho}
-                  isAtual={trecho.dias.some((d) => diffInDays(parseISODate(d.data), today) === 0)}
-                  onOpen={() => setOpenTrechoKey(trecho.key)}
-                />
-              </StaggerItem>
-            ))}
-
-            <button
-              onClick={() => setNovaParadaOpen(true)}
-              className="flex items-center justify-center gap-xs h-12 rounded-xl border border-dashed border-hairline-strong dark:border-hairline-dark-strong text-body-md text-muted dark:text-on-dark-soft active:bg-surface-strong dark:active:bg-white/5"
-            >
-              <Plus size={18} /> Nova parada
-            </button>
-          </StaggerList>
+                  <button
+                    onClick={() => setNovaParadaOpen(true)}
+                    className="flex items-center justify-center gap-xs h-12 rounded-xl border border-dashed border-hairline-strong dark:border-hairline-dark-strong text-body-md text-muted dark:text-on-dark-soft active:bg-surface-strong dark:active:bg-white/5"
+                  >
+                    <Plus size={18} /> Nova parada
+                  </button>
+                </StaggerList>
+              </div>
+            </div>
+          )}
         </>
       )}
 

@@ -33,7 +33,7 @@ function FitBounds({ points }: { points: LatLng[] }) {
 
 type Ponto = { trecho: Trecho; pos: LatLng }
 
-export function RouteMap({ trechos, destino }: { trechos: Trecho[]; destino: string }) {
+export function RouteMap({ trechos, destino, bleed = false }: { trechos: Trecho[]; destino: string; bleed?: boolean }) {
   const [pontos, setPontos] = useState<Ponto[] | null>(null)
 
   const queries = useMemo(() => trechos.map((t) => `${t.base}, ${destino}`), [trechos, destino])
@@ -63,20 +63,30 @@ export function RouteMap({ trechos, destino }: { trechos: Trecho[]; destino: str
 
   if (trechos.length === 0) return null
 
+  const heightClass = bleed ? 'h-72' : 'h-56'
+  const shapeClass = bleed ? '' : 'rounded-xxl overflow-hidden shadow-soft'
+
   if (pontos === null) {
     return (
-      <div className="h-56 rounded-xxl bg-surface-strong dark:bg-white/5 animate-pulse flex items-center justify-center">
+      <div className={`${heightClass} ${shapeClass} bg-surface-strong dark:bg-white/5 animate-pulse flex items-center justify-center`}>
         <p className="text-body-sm text-muted dark:text-on-dark-soft">Carregando mapa…</p>
       </div>
     )
   }
 
-  if (pontos.length === 0) return null
+  if (pontos.length === 0) {
+    if (!bleed) return null
+    return (
+      <div className={`${heightClass} ${shapeClass} bg-surface-strong dark:bg-white/5 flex items-center justify-center`}>
+        <p className="text-body-sm text-muted dark:text-on-dark-soft">Mapa indisponível pra essas paradas.</p>
+      </div>
+    )
+  }
 
   const linha = pontos.map((p) => [p.pos.lat, p.pos.lng] as [number, number])
 
   return (
-    <div className="h-56 rounded-xxl overflow-hidden shadow-soft [&_.leaflet-container]:h-full">
+    <div className={`${heightClass} ${shapeClass} [&_.leaflet-container]:h-full`}>
       <MapContainer center={linha[0]} zoom={6} scrollWheelZoom={false} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
