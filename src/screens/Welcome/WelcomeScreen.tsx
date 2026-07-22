@@ -10,10 +10,14 @@ export function WelcomeScreen({
 }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      <img
-        src="/photos/unforgettable-time-with-african-iphone-dtk4exogcjs4z3ha.jpg"
-        alt=""
+      <video
         className="absolute inset-0 w-full h-full object-cover"
+        src="/videos/hero-africa.mp4"
+        poster="/photos/unforgettable-time-with-african-iphone-dtk4exogcjs4z3ha.jpg"
+        autoPlay
+        loop
+        muted
+        playsInline
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/10" />
 

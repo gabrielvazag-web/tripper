@@ -31,10 +31,14 @@ export function HomeScreen({ onNavigate }: { onNavigate: (tab: TabKey, more?: Mo
 
       <div className="px-lg animate-fade-in-up">
         <div className="relative rounded-xxl overflow-hidden h-40 shadow-soft">
-          <img
-            src="/photos/unforgettable-time-with-african-iphone-dtk4exogcjs4z3ha.jpg"
-            alt={trip.meta.destino}
+          <video
             className="absolute inset-0 w-full h-full object-cover"
+            src="/videos/hero-africa.mp4"
+            poster="/photos/unforgettable-time-with-african-iphone-dtk4exogcjs4z3ha.jpg"
+            autoPlay
+            loop
+            muted
+            playsInline
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-base">
